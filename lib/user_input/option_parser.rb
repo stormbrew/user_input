@@ -106,7 +106,12 @@ module UserInput
 					argument_stack.shift.value = arg
 				else
 					# figure out what type of argument it is
-					if (match = arg.match(/^\-\-(.+)$/))
+					if (arg == '--')
+						# bare -- should cause the parser to consume and then stop, unlike bare word
+						# which should leave it in place.
+						argv.shift
+						return self
+					elsif (match = arg.match(/^\-\-(.+)$/))
 						arg_info = @options[match[1]]
 						if (!arg_info)
 							raise ArgumentError, "Unrecognized option #{match[1]}"
