@@ -76,9 +76,6 @@ module UserInput
 
 		# This defines a command line argument that takes a value.
 		def argument(short_name, long_name, description, default_value, validate = nil, &block)
-			if (default_value.nil?)
-				raise ArgumentError, "Must provide a default value for optional argument."
-			end
 			return define_value(short_name, long_name, description, false, default_value, validate || block)
 		end
 		
