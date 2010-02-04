@@ -204,13 +204,9 @@ class Symbol
 
 	# instance form does a straight comparison of value.to_sym with self.
 	def from_user_input(value)
-		begin
-			if (self.to_s == value.to_s)
-				return self
-			else
-				return nil
-			end
-		rescue
+		if (self.to_s == value.to_s)
+			return self
+		else
 			return nil
 		end
 	end
