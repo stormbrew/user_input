@@ -4,17 +4,54 @@ require 'lib/user_input/option_parser'
 describe UserInput::OptionParser do
 	IOptionParser = UserInput::OptionParser
 	
+	it "Should optionally take an argument for program prefix, setting it to $0 if none set" do
+		IOptionParser.new().program_prefix.should == $0
+		IOptionParser.new("blah").program_prefix.should == "blah"
+	end
+	
+	it "Should let you set the program prefix after initialization" do
+		opt = IOptionParser.new
+		opt.program_prefix.should == $0
+		opt.program_prefix = "blah"
+		opt.program_prefix.should == "blah"
+	end
+	
+	it "Should generate a default banner if none specified" do
+		IOptionParser.new().banner.should be_kind_of(String)
+	end
+	it "Should let you set the banner" do
+		opt = IOptionParser.new
+		opt.banner = "blah"
+		opt.banner.should == "blah"
+	end
+	
+	it "Should yield the object for use if a block is given to the constructor" do
+		IOptionParser.new("boom") {|p|
+			p.should be_kind_of(IOptionParser)
+			p.program_prefix.should == "boom"
+		}
+	end
+	
+	it "Should not allow multicharacter short options or single character long options" do
+		IOptionParser.new {|p|
+			proc { p.flag "boom", "boom", "what?" }.should raise_error(ArgumentError)
+			proc { p.flag "a", "a", "what?" }.should raise_error(ArgumentError)
+		}
+	end
+	
 	before :each do
 		@opt = IOptionParser.new("testing")
 		@opt.flag "a", "abba", "stuff goes here"
 		@opt.flag "b", "boom", "this one goes boom" do raise "BOOM" end
 		@opt.argument "c", "cool", "this one is awesome", "whatever"
+		@opt.gap
 		@opt.argument "d", "dumb", "this one is dumb. It wants nothing but an integer.", 5, Integer
 		@opt.argument "e", "everything", "this one's really clever, it's always 'everything'", "what?" do "everything" end
+		@opt.argument "f", "fugged-aboudit", "this one has a hyphen, which makes it scary", "stuff"
 	end
 	
 	it "Should have defined the right methods" do
-		[:abba?, :boom?, :cool, :dumb, :everything].each {|i|
+		[:abba?, :boom?, :cool, :dumb, :everything, :fugged_aboudit].each {|i|
 			@opt.respond_to?(i).should be_true
 		}
 	end
@@ -25,6 +62,7 @@ describe UserInput::OptionParser do
 		@opt.cool.should == "whatever"
 		@opt.dumb.should == 5
 		@opt.everything.should == "what?"
+		@opt.fugged_aboudit.should == "stuff"
 	end
 	
 	it "Should return itself from both parse and parse!" do
@@ -60,6 +98,11 @@ describe UserInput::OptionParser do
 		@opt.cool.should == "stuff"
 	end
 
+	it "Should deal with a hyphen in the command line argument" do
+		@opt.parse(["--fugged-aboudit", "boom"])
+		@opt.fugged_aboudit.should == "boom"
+	end
+	
 	it "should parse a flag and an argument separately" do
 		@opt.parse(["-a", "-c", "stuff"])
 		@opt.abba?.should be_true
@@ -84,6 +127,11 @@ describe UserInput::OptionParser do
 		@opt.cool.should == "what"
 		@opt.dumb.should == 1
 	end
+	
+	it "Should raise an error if you supply a flag or argument it doesn't understand" do
+		proc { @opt.parse(["-z"]) }.should raise_error(ArgumentError)
+		proc { @opt.parse(["--zoom"]) }.should raise_error(ArgumentError)
+	end
 
 	it "should parse destructively if you use parse!" do
 		arr = ["-a"]
@@ -101,5 +149,10 @@ describe UserInput::OptionParser do
 		arr = ["-a", "--", "whatever"]
 		@opt.parse!(arr)
 		arr.should == ["whatever"]
+	end
+	
+	it "should return a string from to_s" do
+		# Possibly this spec should include an example to compare against, but that seems too rigid.
+		@opt.to_s.should be_kind_of(String)
 	end
 end
