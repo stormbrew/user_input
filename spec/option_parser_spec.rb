@@ -96,4 +96,10 @@ describe UserInput::OptionParser do
 		@opt.parse!(arr)
 		arr.should == ["boom", "whatever"]
 	end
+	
+	it "should stop parsing on finding --, but should still consume it" do
+		arr = ["-a", "--", "whatever"]
+		@opt.parse!(arr)
+		arr.should == ["whatever"]
+	end
 end
