@@ -113,11 +113,6 @@ module UserInput
 		end
 		alias :size :length
 
-		# Turns the inner hash into an array.
-		def to_array()
-			return real_hash.to_array()
-		end
-
 		# Returns the inner hash.
 		def to_hash
 			return @real_hash
