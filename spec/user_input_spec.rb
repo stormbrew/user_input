@@ -171,6 +171,9 @@ describe "UserInput" do
 				[1,2,3].from_user_input([1])
 			}.should raise_error(ArgumentError)
 		end
+		it "Should flatten an inner array to a value if the type specified isn't an array" do
+			[Integer].from_user_input([[1,2,3]]).should == [1]
+		end
 		it "Should do a recursive check on the input based on the type of the first element in the instance method" do
 			[Integer].from_user_input([1, 2, 3]).should == [1, 2, 3]
 			[Integer].from_user_input([1, 2, 3, "blah"]).should == [1, 2, 3]
@@ -192,6 +195,10 @@ describe "UserInput" do
 		it "Should return nil for a non-hash" do
 			{1 => 2}.from_user_input(1).should be_nil
 		end
+		it "Should return nil for an empty hash, or a hash with no compatible values" do
+			{1 => 2}.from_user_input({}).should be_nil
+			{1 => 2}.from_user_input({2=>1}).should be_nil
+		end
 		it "Should do a recursive check on the key/value pair passed in." do
 			{String=>1}.from_user_input({"blah"=>1, "blorp"=>2}).should == {"blah"=>1}
 			{String=>{Integer=>String}}.from_user_input({"boom"=>{1=>"stuff"}, "floom"=>"wat"}).should == {"boom"=>{1=>"stuff"}}
@@ -199,12 +206,17 @@ describe "UserInput" do
 	end
 	
 	describe Set do
+		before :each do
+			@set = Set["a", "b", 1, "23.4", 34.2]
+		end
 		it "Should return an item if it can be validated as being in the Set" do
-			set = Set["a", "b", 1, "23.4", 34.2]
-			set.from_user_input("a").should == "a"
-			set.from_user_input(1).should == 1
-			set.from_user_input(23.4).should == "23.4"
-			set.from_user_input("34.2").should == 34.2
+			@set.from_user_input("a").should == "a"
+			@set.from_user_input(1).should == 1
+			@set.from_user_input(23.4).should == "23.4"
+			@set.from_user_input("34.2").should == 34.2
+		end
+		it "Should return nil if it isn't compatible with any member of the Set" do
+			@set.from_user_input("c").should be_nil
 		end
 	end
 	
@@ -223,9 +235,15 @@ describe "UserInput" do
 	end
 	
 	describe IPAddr do
+		it "Should return the object if it's already an IPAddr" do
+			IPAddr.from_user_input(IPAddr.new("127.0.0.1")).should == IPAddr.new("127.0.0.1")
+		end
 		it "Should return an IPAddr object if the string given it is a valid ip address." do
 			IPAddr.from_user_input("127.0.0.1").should == IPAddr.new("127.0.0.1")
 			IPAddr.from_user_input("::d234").should == IPAddr.new("::d234")
+		end
+		it "Should return nil for a string that can't convert into an IPAddr" do
+			IPAddr.from_user_input("boom").should be_nil
 		end
 	end
 	
