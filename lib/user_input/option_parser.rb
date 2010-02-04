@@ -131,7 +131,7 @@ module UserInput
 						}
 					else
 						# unrecognized bareword, so bail out and leave it to the caller to figure it out.
-						return argv
+						return self
 					end
 				end
 				
@@ -143,7 +143,7 @@ module UserInput
 			if (argument_stack.length > 0)
 				raise ArgumentError, "Missing value for argument #{argument_stack.first.long_name}"
 			end
-			return argv
+			return self
 		end
 		def parse(argv = ARGV)
 			self.parse!(argv.dup)
