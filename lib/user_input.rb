@@ -215,7 +215,7 @@ end
 class IPAddr
 	def IPAddr.from_user_input(value)
 		if (value.kind_of?(self))
-			return true
+			return value
 		end
 		begin
 			return self.new(value.to_s)
