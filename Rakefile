@@ -7,6 +7,7 @@ begin
     gem.name = "user_input"
     gem.summary = %Q{Provides simple, convention-based, user input validation and coercion. Also provides a 'type safe hash' and command line option parser that use it.}
     gem.description = %Q{TODO: longer description of your gem}
+    gem.description = %Q{Provides simple, convention-based, user input validation and coercion. Also provides a 'type safe hash' and command line option parser that use it.}
     gem.homepage = "http://github.com/stormbrew/user_input"
     gem.authors = ["Megan Batty"]
     gem.email = "megan@stormbrew.ca"
