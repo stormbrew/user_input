@@ -26,19 +26,24 @@ describe UserInput::OptionParser do
 		@opt.dumb.should == 5
 		@opt.everything.should == "what?"
 	end
+	
+	it "Should return itself from both parse and parse!" do
+		@opt.parse(["-a"]).should == @opt
+		@opt.parse!(["-a"]).should == @opt
+	end
 
 	it "Should parse a simple short flag" do
-		@opt.parse(["-a"]).should == []
+		@opt.parse(["-a"])
 		@opt.abba?.should be_true
 	end
 	
 	it "Should parse a simple long flag" do
-		@opt.parse(["--abba"]).should == []
+		@opt.parse(["--abba"])
 		@opt.abba?.should be_true
 	end
 	
 	it "Should raise an error if we try to set the exploding flag" do
-		proc { @opt.parse(["-b"]).should == [] }.should raise_error("BOOM")
+		proc { @opt.parse(["-b"]) }.should raise_error("BOOM")
 	end
 	
 	it "Should raise if an argument isn't supplied to a normal argument" do
@@ -46,17 +51,17 @@ describe UserInput::OptionParser do
 	end
 	
 	it "Should parse a simple argument with properly specified" do
-		@opt.parse(["-c", "stuff"]).should == []
+		@opt.parse(["-c", "stuff"])
 		@opt.cool.should == "stuff"
 	end
 	
 	it "Should parse a simple argument in its long form properly specified" do
-		@opt.parse(["--cool", "stuff"]).should == []
+		@opt.parse(["--cool", "stuff"])
 		@opt.cool.should == "stuff"
 	end
 
 	it "should parse a flag and an argument separately" do
-		@opt.parse(["-a", "-c", "stuff"]).should == []
+		@opt.parse(["-a", "-c", "stuff"])
 		@opt.abba?.should be_true
 		@opt.cool.should == "stuff"
 	end
@@ -64,29 +69,31 @@ describe UserInput::OptionParser do
 	it "Should validate input using from_user_input" do
 		proc { @opt.parse(["-d", "whatever"]) }.should raise_error(ArgumentError)
 		@opt.dumb.should == 5
-		@opt.parse(["-d", "99"]).should == []
+		@opt.parse(["-d", "99"])
 		@opt.dumb.should == 99
 	end
 	
 	it "Should validate input using a proc object" do
-		@opt.parse(["-e", "stufffff"]).should == []
+		@opt.parse(["-e", "stufffff"])
 		@opt.everything.should == "everything"
 	end
 	
 	it "should parse correctly if you specify multiple arguments in a group" do
-		@opt.parse(["-acd", "what", "1"]).should == []
+		@opt.parse(["-acd", "what", "1"])
 		@opt.abba?.should be_true
 		@opt.cool.should == "what"
 		@opt.dumb.should == 1
 	end
-	
-	it "should stop parsing on finding a non-flag word unexpectedly and return the remainder" do
-		@opt.parse(["-a", "boom", "whatever"]).should == ["boom", "whatever"]
-	end
-	
+
 	it "should parse destructively if you use parse!" do
 		arr = ["-a"]
-		@opt.parse!(arr).should == []
+		@opt.parse!(arr)
 		arr.should == []
+	end
+	
+	it "should stop parsing on finding a non-flag word unexpectedly and return the remainder" do
+		arr = ["-a", "boom", "whatever"]
+		@opt.parse!(arr)
+		arr.should == ["boom", "whatever"]
 	end
 end
