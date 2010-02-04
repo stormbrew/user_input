@@ -6,7 +6,7 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "user_input"
     gem.summary = %Q{Provides simple, convention-based, user input validation and coercion. Also provides a 'type safe hash' and command line option parser that use it.}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.description = %Q{Provides simple, convention-based, user input validation and coercion. Also provides a 'type safe hash' and command line option parser that use it.}
     gem.email = "graham@stormbrew.ca"
     gem.homepage = "http://github.com/stormbrew/user_input"
     gem.authors = ["Graham Batty"]

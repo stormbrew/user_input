@@ -1,6 +1,50 @@
 = user_input
 
-Description goes here.
+This gem provides simple, convention-based, user input validation and coercion. It adds the method from_user_input to various built-in classes as both a class and instance method. On a class, the method returns a validated instance of that class if it can be coerced into one (or nil if not). On an instance, it validates more strictly against the value of that instance. The following examples demonstrate the intended behaviour:
+
+require 'user_input'
+String.from_user_input("blah") => "blah"
+Integer.from_user_input("1") => 1
+Integer.from_user_input("blorp") => nil
+1.from_user_input("1") => 1
+1.from_user_input("2") => nil
+Array.from_user_input([1, 2, 3]) => [1, 2, 3]
+Array.from_user_input("blah") => nil
+[Integer].from_user_input([1, 2, 3]) => [1, 2, 3]
+[Integer].from_user_input(["blorp"]) => nil
+[Integer].from_user_input(["blorp", 1]) => [1]
+{String => Integer}.from_user_input({"blah" => 1}) => {"blah" => 1}
+{String => Integer}.from_user_input({"blah" => "blorp"}) => nil
+
+See the specs and/or rdoc for more details.
+
+It also provides a 'type safe hash' that uses the above functions to validate its contents. It can be used as a convenient tool for dealing with, as an example, an http params hash:
+
+require 'user_input/type_safe_hash'
+h = UserInput::TypeSafeHash.new("blah" => "blorp", "woozle" => 1, "goggle" => [1, 2, 3])
+h["blah", String] => "blorp"
+h["blah", Integer] => nil
+h["blah", /hello/, "what?"] => "what?"
+h["goggle", [/boom/], []] => []
+
+And finally, there is a command line option parser that lets you validate this way. An example of its use is as follows:
+require 'user_input/option_parser'
+options = UserInput::OptionParser.new do |c|
+	c.argument 'c', 'config', "Config file to use", String, "dev"
+	c.argument 'i', 'ipaddr', "IP Address to listen on", IPAddr, IPAddr.new("127.0.0.1")
+	c.argument 'p', 'port', "Port to listen on", Integer, 1024
+	c.gap
+	c.flag 'h', 'help', "Display help message" do
+		puts(c)
+		exit(1)
+	end
+	c.flag 'v', 'version', "Display version" do
+		puts("1.0")
+		exit(1)
+	end
+end
+options.parse!(ARGV)
+puts(options.config, options.ipaddr, options.port)
 
 == Note on Patches/Pull Requests
  
