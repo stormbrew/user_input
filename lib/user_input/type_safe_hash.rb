@@ -88,7 +88,7 @@ module UserInput
 		def has_key?(key)
 			return real_hash.has_key?(key)
 		end
-		alias :include :has_key?
+		alias :include? :has_key?
 		alias :key? :has_key?
 		alias :member? :has_key?
 
