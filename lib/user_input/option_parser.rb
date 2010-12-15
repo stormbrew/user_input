@@ -32,6 +32,8 @@ module UserInput
 		attr_accessor :program_prefix
 		# The banner to display above the help. Defaults to nil, in which case it's generated.
 		attr_writer :banner
+		# Saved unknown barewords if save_unknown! is called, nil otherwise.
+		attr_reader :saved
 		
 		# If a block is passed in, it is given self.
 		def initialize(program_prefix = $0)
@@ -39,6 +41,8 @@ module UserInput
 			@order = []
 			@program_prefix = program_prefix
 			@banner = nil
+			
+			@saved = nil
 						
 			if (block_given?)
 				yield self
@@ -73,6 +77,13 @@ module UserInput
 			return self
 		end
 		private :define_value
+		
+		# Enable saving of unknown barewords. With this, the only way to terminate
+		# parsing is to hit the end of the parse or with --.
+		# You can retrieve the saved words from #saved.
+		def save_unknown!
+		  @saved = []
+	  end
 
 		# This defines a command line argument that takes a value.
 		def argument(short_name, long_name, description, default_value, validate = nil, &block)
@@ -132,8 +143,15 @@ module UserInput
 							end
 						}
 					else
-						# unrecognized bareword, so bail out and leave it to the caller to figure it out.
-						return self
+					  # unrecognized bareword (not part of a flag). What we do
+					  # depends on whether or not we're saving unknown barewords.
+					  if (@saved)
+					    #save it
+					    @saved << arg
+				    else
+  						# bail out and leave it to the caller to figure it out.
+  						return self
+						end
 					end
 				end
 				
