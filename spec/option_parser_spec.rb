@@ -151,6 +151,18 @@ describe UserInput::OptionParser do
 		arr.should == ["whatever"]
 	end
 	
+	it "should save unknown barewords if you tell it to, and should continue parsing" do
+		@opt.save_unknown!
+		
+		arr = ["-a", "boom", "-c", "blorp", "blah"]
+		@opt.parse!(arr)
+		arr.should == []
+		@opt.saved.should == ["boom", "blah"]
+
+		@opt.abba?.should be_true
+		@opt.cool.should == "blorp"
+	end
+	
 	it "should return a string from to_s" do
 		# Possibly this spec should include an example to compare against, but that seems too rigid.
 		@opt.to_s.should be_kind_of(String)
